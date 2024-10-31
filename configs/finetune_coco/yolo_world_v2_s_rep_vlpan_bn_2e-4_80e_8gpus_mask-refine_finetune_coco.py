@@ -2,9 +2,15 @@ _base_ = ('../../third_party/mmyolo/configs/yolov8/'
           'yolov8_s_mask-refine_syncbn_fast_8xb16-500e_coco.py')
 custom_imports = dict(imports=['yolo_world'], allow_failed_imports=False)
 
+import os
+
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+YOLO_WORLD_DIR = os.path.join(THIS_DIR, '..', '..')
+DATASET_DIR = os.path.join(YOLO_WORLD_DIR, "synthetic_chess_board_dataset")
+
 # hyper-parameters
-num_classes = 80
-num_training_classes = 80
+num_classes = 1
+num_training_classes = 1
 max_epochs = 80  # Maximum training epochs
 close_mosaic_epochs = 10
 save_epoch_intervals = 5
@@ -77,12 +83,14 @@ train_pipeline = [
 
 train_pipeline_stage2 = [*_base_.train_pipeline_stage2[:-1], *final_transform]
 
-coco_train_dataset = dict(type='YOLOv5CocoDataset',
-                          data_root='data/coco',
-                          ann_file='annotations/instances_train2017.json',
-                          data_prefix=dict(img='train2017/'),
-                          filter_cfg=dict(filter_empty_gt=False, min_size=32),
-                          pipeline=train_pipeline)
+coco_train_dataset = dict(
+    type="YOLOv5CocoDataset",
+    data_root="data/coco",
+    ann_file=os.path.join(DATASET_DIR, "output", "chess_board_screenshots_train.coco.json"),
+    data_prefix=dict(img="train2017/"),
+    filter_cfg=dict(filter_empty_gt=False, min_size=32),
+    pipeline=train_pipeline,
+)
 
 train_dataloader = dict(persistent_workers=persistent_workers,
                         batch_size=train_batch_size_per_gpu,
@@ -99,12 +107,14 @@ test_pipeline = [
          meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
                     'scale_factor', 'pad_param'))
 ]
-coco_val_dataset = dict(type='YOLOv5CocoDataset',
-                        data_root='data/coco',
-                        ann_file='annotations/instances_val2017.json',
-                        data_prefix=dict(img='val2017/'),
-                        filter_cfg=dict(filter_empty_gt=False, min_size=32),
-                        pipeline=test_pipeline)
+coco_val_dataset = dict(
+    type="YOLOv5CocoDataset",
+    data_root="data/coco",
+    ann_file=os.path.join(DATASET_DIR, "output", "chess_board_screenshots_val.coco.json"),
+    data_prefix=dict(img="val2017/"),
+    filter_cfg=dict(filter_empty_gt=False, min_size=32),
+    pipeline=test_pipeline,
+)
 
 val_dataloader = dict(dataset=coco_val_dataset)
 test_dataloader = val_dataloader
@@ -139,8 +149,10 @@ optim_wrapper = dict(optimizer=dict(
                      constructor='YOLOWv5OptimizerConstructor')
 
 # evaluation settings
-val_evaluator = dict(_delete_=True,
-                     type='mmdet.CocoMetric',
-                     proposal_nums=(100, 1, 10),
-                     ann_file='data/coco/annotations/instances_val2017.json',
-                     metric='bbox')
+val_evaluator = dict(
+    _delete_=True,
+    type="mmdet.CocoMetric",
+    proposal_nums=(100, 1, 10),
+    ann_file=(DATASET_DIR, "output", "chess_board_screenshots_val.coco.json"),
+    metric="bbox",
+)
