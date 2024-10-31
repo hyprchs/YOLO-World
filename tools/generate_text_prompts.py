@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--model',
         type=str,
-        default='./pretrained_models/clip-vit-base-patch32-projection')
+        default='openai/clip-vit-base-patch32')
     parser.add_argument('--text',
                         type=str,
                         default='data/captions/coco_class_captions.json')
