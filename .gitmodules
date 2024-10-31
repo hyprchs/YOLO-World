@@ -1,3 +1,6 @@
 [submodule "third_party/mmyolo"]
 	path = third_party/mmyolo
 	url = https://github.com/onuralpszr/mmyolo.git
+[submodule "synthetic_chess_board_dataset"]
+	path = synthetic_chess_board_dataset
+	url = git@github.com:hyprchs/synthetic_chess_board_dataset.git
